@@ -72,8 +72,23 @@ server.delete("/api/users/:id", async (req,res) => {
 })
 
 // update a user
-server.put("/api/users/:id", (req, res) => {
-    
+server.put("/api/users/:id", async (req, res) => {
+    const id = req.params.id
+    const changes = req.body
+    try{
+        if(!changes.name || !changes.bio){
+            res.status(422).json("Name and bio required")
+        } else {
+            const updatedUser = await User.update(id, changes)
+                if(!updatedUser) {
+                    res.status(422).json("User doesn't exist")
+                } else {
+                    res.status(201).json(updatedUser)
+                }
+            }
+        } catch(error){
+            res.status(500).json({message: error.message})
+        }
 })
 
 //CATCH ALL ENDPOINT
